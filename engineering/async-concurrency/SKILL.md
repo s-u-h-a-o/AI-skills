@@ -4,41 +4,41 @@ description: |
   Teaches Claude Code's concurrency model: isConcurrencySafe() for parallel tool execution, AbortController propagation for cancellation, Promise.all() for parallel initialization, and the StreamingToolExecutor for concurrent progress streams. Use this when writing tools that could benefit from parallel execution, need to respect cancellation, or must stream partial results. Read-only tools that don't declare concurrency safety are needlessly serialized.
 ---
 
-# Async Concurrency
+# 异步并发
 
-## The pattern
+## 模式
 
-Claude Code's tool execution is mostly sequential — one tool at a time — but read-only tools can run in parallel when `isConcurrencySafe()` returns true. Cancellation is propagated via `AbortController` passed through `ToolUseContext`. Parallel initialization uses `Promise.all()`. Streaming partial results uses `onProgress` callbacks fed into a `StreamingToolExecutor`.
+Claude Code 的工具执行大多是顺序的——每次一个工具——但只读工具在 `isConcurrencySafe()` 返回 true 时可以并行运行。取消操作通过 `AbortController` 经由 `ToolUseContext` 传播。并行初始化使用 `Promise.all()`。流式输出部分结果使用 `onProgress` 回调，接入 `StreamingToolExecutor`。
 
-The key design: concurrency safety is a per-call decision, not a per-tool constant. A bash tool reading `git status` is safe to run concurrently. The same bash tool running `npm install` is not. The tool knows its own input and can make the right call.
+核心设计：并发安全性是每次调用的判断，而非工具的常量属性。执行 `git status` 的 bash 工具可以安全并发。同一个 bash 工具执行 `npm install` 则不行。工具了解自己的输入，能做出正确的判断。
 
-## Why this matters
+## 为什么重要
 
-In a developer session, the LLM often requests several read operations in sequence (read file A, read file B, check git status). If these were strictly sequential, the user would wait for three round-trips to disk. `isConcurrencySafe: true` tells the scheduler it can run these in parallel, reducing perceived latency.
+在开发者会话中，LLM 经常依次请求多个读操作（读文件 A、读文件 B、检查 git 状态）。如果这些严格串行执行，用户需要等待三次磁盘往返。`isConcurrencySafe: true` 告知调度器可以并行执行，减少感知延迟。
 
-Cancellation is critical for long-running tools (bash commands, web fetches). When the user presses Ctrl+C, the AbortController's signal fires and all in-flight tool calls must stop promptly. A tool that ignores `context.abortController.signal` will keep running after the user cancelled, blocking the next turn.
+取消对于长时间运行的工具（bash 命令、网络请求）至关重要。当用户按下 Ctrl+C 时，`AbortController` 的信号触发，所有正在进行的工具调用必须立即停止。忽略 `context.abortController.signal` 的工具将在用户取消后继续运行，阻塞下一轮会话。
 
-Git status is a concrete example: Claude Code parallelizes five git commands — branch, default branch, status, recent log, and user name — with a single `Promise.all()`. This collapses what would be ~500ms of sequential I/O into a single ~100ms concurrent batch.
+Git 状态是一个具体示例：Claude Code 使用单个 `Promise.all()` 并行执行五个 git 命令——分支、默认分支、状态、最近日志和用户名。这将约 500ms 的顺序 I/O 压缩为约 100ms 的并发批次。
 
-## How to apply it
+## 如何应用
 
-1. For `isConcurrencySafe(input)`: return `true` only for operations that don't mutate state. File reads, globs, searches, and git status commands are safe. File writes, bash mutations, and agent spawns are not.
-2. For `isReadOnly(input)`: return `true` for operations that make no persistent changes. Used to determine if the tool can be skipped in speculation mode.
-3. Pass `context.abortController.signal` to all async I/O: `fetch()`, `execFile()`, file streams. This ensures immediate cancellation on user interrupt.
-4. Check `signal.aborted` at checkpoints in long-running loops.
-5. When a tool runs multiple I/O operations that are independent, use `Promise.all()` — don't await them sequentially.
-6. For streaming partial results, call `onProgress(progressData)` as work proceeds. The UI subscribes to these calls to show live output.
+1. 对 `isConcurrencySafe(input)`：仅对不改变状态的操作返回 `true`。文件读取、glob、搜索、git status 命令是安全的。文件写入、bash 变更操作、agent 生成不安全。
+2. 对 `isReadOnly(input)`：对不产生持久变更的操作返回 `true`。用于判断工具是否可在推测模式下跳过。
+3. 将 `context.abortController.signal` 传递给所有异步 I/O：`fetch()`、`execFile()`、文件流。这确保用户中断时立即取消。
+4. 在长时间运行的循环的检查点检查 `signal.aborted`。
+5. 当工具运行多个独立的 I/O 操作时，使用 `Promise.all()`——不要逐个 await。
+6. 要流式输出部分结果，在工作进行中调用 `onProgress(progressData)`。UI 订阅这些调用来显示实时输出。
 
-## In the source
+## 源码示例
 
 ```typescript
-// Source: src/context.ts (parallel git status — five concurrent commands)
+// Source: src/context.ts (并行 git status——五个并发命令)
 export const getGitStatus = memoize(async (): Promise<string | null> => {
   const isGit = await getIsGit()
   if (!isGit) return null
 
-  // Five independent git commands run in parallel with Promise.all
-  // Sequential would take ~500ms; parallel takes ~100ms
+  // 五个独立的 git 命令通过 Promise.all 并行执行
+  // 顺序执行约需 ~500ms；并行约需 ~100ms
   const [branch, mainBranch, status, log, userName] = await Promise.all([
     getBranch(),
     getDefaultBranch(),
@@ -47,13 +47,13 @@ export const getGitStatus = memoize(async (): Promise<string | null> => {
     execFileNoThrow(gitExe(), ['config', 'user.name']),
   ])
 
-  // ... format and return
+  // ... 格式化并返回
 })
 
-// Source: src/Tool.ts (isConcurrencySafe is input-dependent for BashTool)
+// Source: src/Tool.ts (BashTool 的 isConcurrencySafe 依赖输入)
 export const BashTool: Tool<typeof inputSchema> = {
   isConcurrencySafe(input) {
-    // Only safe if the command is classified as search/read
+    // 仅当命令被分类为搜索/读取时才安全
     const classification = isSearchOrReadBashCommand(input.command)
     return classification.isSearch || classification.isRead
   },
@@ -64,7 +64,7 @@ export const BashTool: Tool<typeof inputSchema> = {
   },
 
   async call(args, context, canUseTool) {
-    // AbortController signal passed to shell execution
+    // AbortController 信号传递给 shell 执行
     const result = await executeShell(args.command, {
       signal: context.abortController.signal,
       cwd: getCwd(),
@@ -73,12 +73,12 @@ export const BashTool: Tool<typeof inputSchema> = {
   },
 }
 
-// Source: src/Tool.ts (onProgress for streaming output)
+// Source: src/Tool.ts (onProgress 用于流式输出)
 async call(args, context, canUseTool, parentMessage, onProgress) {
   const proc = spawnProcess(args.command)
 
   proc.stdout.on('data', (chunk: Buffer) => {
-    // Stream partial output to UI as it arrives
+    // 将部分输出实时推送到 UI
     onProgress?.({
       type: 'output',
       content: chunk.toString(),
@@ -90,31 +90,31 @@ async call(args, context, canUseTool, parentMessage, onProgress) {
 }
 ```
 
-The `memoize()` on `getGitStatus` is subtle: git status is called at conversation start and might be called again if a tool triggers re-evaluation. Memoizing prevents running all five git commands twice. The cache is cleared when state changes (e.g., branch switch).
+`getGitStatus` 上的 `memoize()` 设计精巧：git status 在对话开始时被调用，如果某个工具触发重新评估，它可能被再次调用。Memoize 可防止重复运行全部五个 git 命令。当状态改变（如分支切换）时缓存被清除。
 
-## Apply it to your code
+## 应用到你的代码
 
-**Before** — read-only tool that blocks concurrent execution unnecessarily:
+**修复前** — 只读工具不必要地阻塞并发执行：
 ```typescript
 export const SearchTool: Tool<typeof inputSchema> = {
-  // Wrong: returns false for a read-only operation, forcing serialization
+  // 错误：对只读操作返回 false，强制串行执行
   isConcurrencySafe: (_input) => false,
   isReadOnly: (_input) => false,
 
   async call(args, context, canUseTool) {
-    // No signal passed — ignores cancellation
+    // 未传递 signal——忽略取消操作
     const results = await searchFiles(args.pattern, args.directory)
     return { data: results }
   },
 }
 ```
 
-**After** — tool correctly declares concurrency and respects cancellation:
+**修复后** — 工具正确声明并发性并遵循取消信号：
 ```typescript
 import { AbortError } from '../../utils/errors.js'
 
 export const SearchTool: Tool<typeof inputSchema> = {
-  // Search is always read-only — safe to run in parallel with other searches
+  // 搜索始终是只读的——可与其他搜索工具并行运行
   isConcurrencySafe: (_input) => true,
   isReadOnly: (_input) => true,
 
@@ -122,14 +122,14 @@ export const SearchTool: Tool<typeof inputSchema> = {
     const results: string[] = []
 
     for await (const match of streamSearchResults(args.pattern, args.directory)) {
-      // Check cancellation at each result — don't process after user cancelled
+      // 在每个结果处检查取消状态——用户取消后不再处理
       if (context.abortController.signal.aborted) {
-        throw new AbortError('Search was cancelled.')
+        throw new AbortError('搜索已取消。')
       }
 
       results.push(match)
 
-      // Stream partial results to UI for responsive feedback
+      // 流式输出部分结果以提供响应式反馈
       onProgress?.({ type: 'partial_results', count: results.length })
     }
 
@@ -138,22 +138,22 @@ export const SearchTool: Tool<typeof inputSchema> = {
 }
 ```
 
-## Signals that you need this pattern
+## 需要此模式的信号
 
-- A read-only tool (file read, glob, grep) has `isConcurrencySafe: () => false`
-- Long-running tools don't pass `context.abortController.signal` to their I/O operations
-- A tool makes 3+ independent async calls sequentially when they could be `Promise.all()`-ed
-- User reports that Ctrl+C doesn't stop a tool and the session hangs
-- The UI shows no progress during a long operation even though partial results are available
+- 只读工具（文件读取、glob、grep）设置了 `isConcurrencySafe: () => false`
+- 长时间运行的工具未将 `context.abortController.signal` 传递给其 I/O 操作
+- 一个工具按顺序执行了 3 个以上独立的异步调用，而本可以 `Promise.all()` 并行
+- 用户反馈 Ctrl+C 无法停止工具，会话挂起
+- 长时间操作期间 UI 无进度显示，即使部分结果已可用
 
-## Signals that you're over-applying it
+## 过度应用的信号
 
-- Mutations (writes, spawns, deletes) must never return `isConcurrencySafe: true` — there are no legitimate parallel-mutation patterns here
-- Don't use `Promise.all()` for operations that depend on each other's output
-- `onProgress` is optional — don't emit progress for instant operations; the overhead is not worth it
+- 变更操作（写入、生成、删除）必须永远不返回 `isConcurrencySafe: true`——这里没有合法的并行变更模式
+- 不要对依赖彼此输出的操作使用 `Promise.all()`
+- `onProgress` 是可选的——不要为瞬时操作发送进度；其开销不值得
 
-## Works with
+## 配合使用
 
-- `tool-definition` — where `isConcurrencySafe` and `isReadOnly` are declared
-- `error-handling` — handling AbortError from cancelled async operations
-- `hot-paths` — parallel initialization as a startup performance pattern
+- `tool-definition` — `isConcurrencySafe` 和 `isReadOnly` 的声明位置
+- `error-handling` — 处理已取消异步操作的 AbortError
+- `hot-paths` — 作为启动性能模式的并行初始化

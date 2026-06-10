@@ -7,160 +7,159 @@ metadata:
   version: 1.0.0
 ---
 
-# Wireframing
+# 线框图设计
 
-This skill enables the agent to produce wireframes at three fidelity levels — low-fi (block layouts and content hierarchy), mid-fi (defined components with placeholder content), and high-fi (pixel-accurate specs with real content, spacing values, and interaction notes). Since the agent works in text, wireframes are rendered as ASCII/box-drawing layouts or structured component specifications with precise dimensions. Each wireframe includes a component inventory, interaction annotations, and responsive breakpoint behavior.
+此 skill 使 Agent 能够生成三种保真度的线框图——低保真（块级布局和内容层级）、中保真（定义明确的组件及占位内容）和高保真（像素级精确规格，包含真实内容、间距数值和交互说明）。由于 Agent 以文本方式工作，线框图以 ASCII/制表符布局或带精确尺寸的结构化组件规格呈现。每个线框图包含组件清单、交互标注和响应式断点行为。
 
-## Workflow
+## 工作流程
 
-1. **Clarify the Screen and Its Purpose**: Identify which screen or view to wireframe, its role in the user flow, and the primary user action on that screen. Determine the target platform (desktop web, tablet, mobile) and any framework constraints (e.g., Bootstrap grid, Material Design components). This scoping prevents wireframes from growing beyond their intended focus.
+1. **明确页面及其目的**：确定要绘制线框图的页面或视图、其在用户流程中的角色以及该页面上的主要用户操作。确定目标平台（桌面 Web、平板、移动端）以及任何框架约束（如 Bootstrap 网格、Material Design 组件）。这种范围界定可防止线框图超出其预期聚焦范围。
 
-2. **Define the Component Inventory**: List every UI component the screen requires: navigation bars, headings, cards, forms, buttons, tables, modals, tooltips, empty states, and loading states. For each component, note its content requirements (label text, data fields, image dimensions) and its interactive behavior (clickable, expandable, draggable, editable). This inventory becomes the wireframe's bill of materials.
+2. **定义组件清单**：列出页面所需的每个 UI 组件：导航栏、标题、卡片、表单、按钮、表格、模态框、提示框、空状态和加载状态。对每个组件，注明其内容需求（标签文字、数据字段、图片尺寸）和交互行为（可点击、可展开、可拖拽、可编辑）。此清单即线框图的物料清单。
 
-3. **Create the Low-Fidelity Layout**: Produce a block-level layout showing content zones and their spatial relationships. Use ASCII box drawing to represent regions. Focus on information hierarchy: what the user sees first, second, third. Do not specify exact pixel values or real content at this stage — use labels like `[Hero Image]`, `[Product Grid 3×2]`, `[CTA Button]`.
+3. **创建低保真布局**：生成一个块级布局，展示内容区域及其空间关系。使用 ASCII 制表符表示各区域。关注信息层级：用户首先看到什么、其次看到什么、再次看到什么。此阶段不指定精确像素值或真实内容——使用标签如 `[主视觉图 Hero Image]`、`[产品网格 3×2]`、`[CTA 按钮]`。
 
-4. **Elevate to Mid-Fidelity**: Replace placeholder labels with representative content. Add specific component types (dropdown vs. radio, text input vs. textarea), define column counts and approximate proportions, and note key spacing relationships (e.g., "16px gap between cards"). Include navigation states (active tab, breadcrumb trail) and basic content hierarchy (heading levels, body text, captions).
+4. **升级到中保真**：用代表性内容替换占位标签。添加具体组件类型（下拉选择 vs 单选按钮、文本输入框 vs 文本域），定义列数和大致比例，标注关键间距关系（如"卡片间距 16px"）。包含导航状态（当前标签、面包屑路径）和基本内容层级（标题级别、正文、说明文字）。
 
-5. **Produce High-Fidelity Specifications**: Add exact dimensions, spacing values (in px or rem), typography specs (font, size, weight, line-height), color token references, border-radius values, and shadow levels. Annotate every interactive element with its behavior: hover state, focus state, click action, validation rules, error messages. Include responsive breakpoint notes describing what changes at each breakpoint.
+5. **生成高保真规格**：添加精确尺寸、间距值（px 或 rem）、字体规格（字体族、字号、字重、行高）、颜色 token 引用、圆角值和阴影层级。对每个可交互元素标注其行为：悬停状态、聚焦状态、点击操作、校验规则、错误消息。包含响应式断点说明，描述每个断点处的变化。
 
-6. **Document Responsive Behavior**: For each wireframe, specify layout changes at mobile (< 640px), tablet (640-1023px), and desktop (≥ 1024px). Describe which components stack, collapse, hide, or reflow. Note touch target sizes for mobile (minimum 44x44px) and any gesture interactions (swipe to dismiss, pull to refresh).
+6. **记录响应式行为**：对每个线框图，指定移动端（< 640px）、平板（640-1023px）和桌面（≥ 1024px）的布局变化。描述哪些组件堆叠、折叠、隐藏或重新排列。注明移动端的触控目标尺寸（最小 44x44px）及任何手势交互（滑动关闭、下拉刷新）。
 
-## Usage
+## 使用方式
 
-Provide the agent with the screen name, its purpose, the target platform, and the desired fidelity level. Include any existing design system tokens or component library references. The agent will produce a wireframe with a component inventory and interaction annotations.
+向 Agent 提供页面名称、其用途、目标平台和所需的保真度级别。包含任何已有的设计系统 token 或组件库引用。Agent 将生成包含组件清单和交互标注的线框图。
 
-## Examples
+## 示例
 
-### Example 1: ASCII Wireframe for an Analytics Dashboard
+### 示例 1：分析仪表盘的 ASCII 线框图
 
-**User Request**: "Create a low-to-mid fidelity wireframe for a web analytics dashboard. Desktop layout. It should show a sidebar nav, KPI summary cards, a line chart, and a data table."
+**用户需求**："为 Web 分析仪表盘创建一个低到中保真线框图。桌面布局。应包含侧边栏导航、KPI 概览卡片、折线图和数据表格。"
 
-**Agent Response**:
+**Agent 回复**：
 
 ```
 ┌──────────────────────────────────────────────────────────────────────┐
-│  ┌─────────┐   Dashboard                     🔔  👤 Jane Smith ▾   │
+│  ┌─────────┐   仪表盘                        🔔  👤 Jane Smith ▾   │
 │  │  LOGO   │                                                        │
 ├──┴─────────┴─┬───────────────────────────────────────────────────────┤
 │              │                                                       │
-│  Dashboard • │  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐    │
-│  Analytics   │  │ Total Users │ │  Revenue    │ │ Bounce Rate │    │
-│  Reports     │  │   12,482    │ │  $48,250    │ │   34.2%     │    │
-│  Settings    │  │  ▲ +8.3%   │ │  ▲ +12.5%  │ │  ▼ -2.1%   │    │
+│  仪表盘 •    │  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐    │
+│  分析        │  │  总用户数    │ │   营收      │ │  跳出率     │    │
+│  报表        │  │   12,482    │ │  $48,250   │ │   34.2%     │    │
+│  设置        │  │  ▲ +8.3%   │ │  ▲ +12.5%  │ │  ▼ -2.1%   │    │
 │              │  └─────────────┘ └─────────────┘ └─────────────┘    │
 │              │                                                       │
 │              │  ┌───────────────────────────────────────────────┐    │
 │              │  │                                               │    │
-│              │  │          Sessions Over Time (Line Chart)      │    │
+│              │  │          会话趋势（折线图）                     │    │
 │              │  │       ___/\      /\                           │    │
 │              │  │     _/    \____/  \___                        │    │
 │              │  │   _/                  \__                     │    │
-│              │  │  Jan  Feb  Mar  Apr  May  Jun                 │    │
+│              │  │  1月  2月  3月  4月  5月  6月                  │    │
 │              │  │                                               │    │
 │              │  └───────────────────────────────────────────────┘    │
 │              │                                                       │
 │              │  ┌───────────────────────────────────────────────┐    │
-│              │  │  Page            Views    Bounce   Avg Time   │    │
+│              │  │  页面            浏览量   跳出率   平均时长    │    │
 │              │  │  ─────────────── ──────── ──────── ────────── │    │
-│              │  │  /home           8,421    32.1%    2m 14s     │    │
-│              │  │  /pricing        3,892    28.7%    3m 42s     │    │
-│              │  │  /docs           2,104    41.3%    5m 08s     │    │
-│              │  │  /blog           1,876    45.6%    1m 52s     │    │
+│              │  │  /home           8,421    32.1%    2分14秒    │    │
+│              │  │  /pricing        3,892    28.7%    3分42秒    │    │
+│              │  │  /docs           2,104    41.3%    5分08秒    │    │
+│              │  │  /blog           1,876    45.6%    1分52秒    │    │
 │              │  │                                               │    │
-│              │  │  ◀ 1 2 3 ... 12 ▶                  Showing   │    │
-│              │  │                                    1-10 of 47 │    │
+│              │  │  ◀ 1 2 3 ... 12 ▶              显示 1-10/47  │    │
 │              │  └───────────────────────────────────────────────┘    │
 │              │                                                       │
 └──────────────┴───────────────────────────────────────────────────────┘
 ```
 
-**Component inventory**:
-| Component | Content | Interaction |
-|-----------|---------|-------------|
-| Sidebar nav | 4 items: Dashboard, Analytics, Reports, Settings | Click to navigate; active item has bold + left accent border |
-| KPI cards (×3) | Metric name, value, % change with trend arrow | Click to drill down to detail view |
-| Line chart | Time series, 6-month range, single dataset | Hover for tooltip with exact values; date range selector above |
-| Data table | 4 columns, sortable, paginated (10 rows/page) | Click column header to sort; click row to view page detail |
-| Top bar | Logo, page title, notification bell, user avatar + dropdown | Bell shows count badge; avatar opens profile/logout menu |
+**组件清单**：
+| 组件 | 内容 | 交互 |
+|------|------|------|
+| 侧边栏导航 | 4 项：仪表盘、分析、报表、设置 | 点击导航；当前项加粗 + 左侧强调边框 |
+| KPI 卡片（×3） | 指标名称、数值、变化百分比及趋势箭头 | 点击深入查看详情 |
+| 折线图 | 时间序列，6 个月范围，单个数据集 | 悬停显示具体数值 tooltip；上方日期范围选择器 |
+| 数据表格 | 4 列、可排序、分页（10 行/页） | 点击列标题排序；点击行查看页面详情 |
+| 顶部栏 | Logo、页面标题、通知铃铛、用户头像 + 下拉菜单 | 铃铛显示计数角标；头像打开个人资料/退出菜单 |
 
-**Responsive behavior**: At tablet (< 1024px), the sidebar collapses to an icon-only rail (48px wide). At mobile (< 640px), the sidebar becomes a bottom tab bar with 4 icons; KPI cards stack vertically in a single column; the data table switches to a card-list layout with one card per row.
+**响应式行为**：平板（< 1024px），侧边栏折叠为仅图标导航条（48px 宽）。移动端（< 640px），侧边栏变为底部标签栏（4 个图标）；KPI 卡片垂直单列堆叠；数据表格切换为卡片列表布局，每行一个卡片。
 
-### Example 2: Mobile App Screen Specification with Annotations
+### 示例 2：带标注的移动端 App 页面规格
 
-**User Request**: "Create a high-fidelity wireframe spec for a mobile app 'Create Task' screen. Include form fields, validation, and interaction notes."
+**用户需求**："为移动 App 的'创建任务'页面创建高保真线框图规格。包含表单字段、校验和交互说明。"
 
-**Agent Response**:
+**Agent 回复**：
 
-**Screen: Create Task (Mobile, 375px width)**
+**页面：创建任务（移动端，375px 宽）**
 
 ```
 ┌─────────────────────────────────┐
-│  ← Back        Create Task      │  ← Top bar: 56px height
+│  ← 返回          创建任务       │  ← 顶部栏：56px 高度
 │─────────────────────────────────│
 │                                 │
-│  Task Name *                    │  ← Label: 14px/500, gray-600
+│  任务名称 *                     │  ← 标签：14px/500，gray-600
 │  ┌─────────────────────────────┐│
-│  │ Enter task name...          ││  ← Input: 44px height, 16px text
+│  │ 输入任务名称...              ││  ← 输入框：44px 高度，16px 文字
 │  └─────────────────────────────┘│
-│  ⚠ Task name is required        │  ← Error: 12px/400, red-500
+│  ⚠ 任务名称为必填项              │  ← 错误：12px/400，red-500
 │                                 │
-│  Description                    │
+│  描述                           │
 │  ┌─────────────────────────────┐│
 │  │                             ││
-│  │ Add details...              ││  ← Textarea: 120px min-height
+│  │ 添加详情...                  ││  ← 文本域：120px 最小高度
 │  │                             ││
 │  └─────────────────────────────┘│
 │                                 │
-│  Priority                       │
+│  优先级                         │
 │  ┌──────┐ ┌──────┐ ┌──────┐   │
-│  │ Low  │ │ Med  │ │ High │   │  ← Segmented control: 36px h
+│  │  低  │ │  中  │ │  高  │   │  ← 分段控件：36px 高度
 │  └──────┘ └──────┘ └──────┘   │
 │                                 │
-│  Due Date                       │
+│  截止日期                       │
 │  ┌─────────────────────────────┐│
-│  │ 📅  Select date...          ││  ← Tappable, opens date picker
+│  │ 📅  选择日期...              ││  ← 可点击，打开日期选择器
 │  └─────────────────────────────┘│
 │                                 │
-│  Assignee                       │
+│  负责人                         │
 │  ┌─────────────────────────────┐│
-│  │ 👤  Select team member...   ││  ← Opens searchable member list
+│  │ 👤  选择团队成员...          ││  ← 打开可搜索成员列表
 │  └─────────────────────────────┘│
 │                                 │
 │  ┌─────────────────────────────┐│
-│  │        Create Task          ││  ← Primary button: 48px height
+│  │          创建任务            ││  ← 主按钮：48px 高度
 │  └─────────────────────────────┘│    bg: blue-600, text: white
 │                                 │
 └─────────────────────────────────┘
 ```
 
-**Detailed specifications**:
-- **Screen padding**: 16px horizontal, 24px top (below nav), 32px bottom (safe area)
-- **Field spacing**: 20px between field groups (label + input + error)
-- **Input fields**: height 44px, border 1px gray-300, border-radius 8px, padding 12px horizontal. Focus state: border blue-500, ring 2px blue-100.
-- **Error state**: Red-500 border on input, error message appears below with 4px top margin, `aria-describedby` linking input to error text.
-- **Priority segmented control**: Equal-width segments filling the available width minus padding. Selected segment: bg blue-600, text white, border-radius 6px. Unselected: bg gray-100, text gray-700.
-- **Create Task button**: Full width, 48px height, border-radius 10px. Disabled state (no task name): bg gray-300, not tappable. Loading state: spinner replaces text.
-- **Keyboard behavior**: Tapping "Task Name" opens keyboard with return key labeled "Next" which moves focus to Description. Tapping "Description" opens keyboard with return key labeled "Done."
+**详细规格**：
+- **页面内边距**：水平 16px，顶部 24px（导航栏下方），底部 32px（安全区域）
+- **字段间距**：字段组之间 20px（标签 + 输入框 + 错误信息）
+- **输入框**：高度 44px，边框 1px gray-300，圆角 8px，水平内边距 12px。聚焦状态：边框 blue-500，光环 2px blue-100。
+- **错误状态**：输入框边框 red-500，错误消息显示在下方，顶部间距 4px，`aria-describedby` 将输入框与错误文本关联。
+- **优先级分段控件**：等宽段，填充可用宽度减去内边距。选中段：bg blue-600，文字 white，圆角 6px。未选中：bg gray-100，文字 gray-700。
+- **创建任务按钮**：全宽，48px 高度，圆角 10px。禁用状态（无任务名称）：bg gray-300，不可点击。加载状态：文字替换为加载指示器。
+- **键盘行为**：点击"任务名称"打开键盘，回车键标签"下一项"，将焦点移至描述字段。点击"描述"打开键盘，回车键标签"完成"。
 
-**Validation rules**:
-- Task Name: required, max 100 characters. Show error on blur if empty.
-- Description: optional, max 1000 characters. Show character count at 800+.
-- Priority: defaults to "Med" if not selected.
-- Due Date: optional. Cannot be in the past. If selected and then cleared, no error.
+**校验规则**：
+- 任务名称：必填，最多 100 个字符。失焦时空值则显示错误。
+- 描述：选填，最多 1000 个字符。超过 800 字符时显示字符计数。
+- 优先级：未选择时默认"中"。
+- 截止日期：选填。不能是过去的日期。若选择后清除，不显示错误。
 
-## Best Practices
+## 最佳实践
 
-- **Start at the lowest fidelity that answers the current question**: If the question is "what content goes on this page?", a low-fi block layout is sufficient. Do not produce pixel specs when the layout itself is still undecided.
-- **Include empty and error states in every wireframe**: A screen that only shows the happy state is incomplete. Wireframe what the user sees when there is no data, when a request fails, and when validation errors appear.
-- **Annotate interactions, not just layout**: Static wireframes omit critical design decisions. Note what happens on tap, swipe, hover, and focus for every interactive element directly on the wireframe.
-- **Use real representative content, not lorem ipsum**: Real content exposes layout problems that placeholder text hides — long names that overflow, short descriptions that leave awkward whitespace, numbers with varying digit counts.
-- **Specify responsive behavior alongside the wireframe**: A wireframe without breakpoint notes will be interpreted differently by every developer. State explicitly what stacks, collapses, hides, or reflows at each breakpoint.
-- **Maintain a component inventory per screen**: List every component with its content requirements and interaction behavior. This inventory serves as a checklist for both design review and development implementation.
+- **从能回答当前问题的最低保真度开始**：如果问题是"这个页面上应该有什么内容？"，低保真块级布局就足够了。在布局本身尚未确定时不要输出像素级规格。
+- **每个线框图都要包含空状态和错误状态**：仅展示正常状态的页面是不完整的。画出无数据时、请求失败时、校验错误出现时用户看到的内容。
+- **标注交互行为，而不仅仅是布局**：静态线框图会遗漏关键设计决策。对每个可交互元素，在线框图上直接标注点击、滑动、悬停和聚焦时会发生什么。
+- **使用真实的代表性内容，而非 lorem ipsum**：真实内容会暴露占位文本所隐藏的布局问题——过长的名称溢出、过短的描述留下尴尬的空白、位数不等的数值。
+- **线框图旁指定响应式行为**：没有断点说明的线框图会被每个开发者做出不同解读。明确说明每个断点处哪些内容堆叠、折叠、隐藏或重新排列。
+- **为每个页面维护组件清单**：列出每个组件的内容需求和交互行为。此清单既是设计审查的核对项，也是开发实现的参考。
 
-## Edge Cases
+## 边界情况
 
-- **Screen requires infinite scroll or pagination**: Wireframe the initial loaded state, the loading-more indicator (skeleton rows or spinner), and the end-of-list state ("No more results"). Note the scroll trigger point (e.g., "Load more when 200px from bottom").
-- **Content is user-generated and length is unpredictable**: Show the wireframe with both a minimal-content version (one-word title, no description) and a maximal-content version (100-character title, full paragraph description). Define truncation rules: max lines, ellipsis behavior, "Show more" toggle.
-- **Screen must support multiple user roles**: If an admin sees edit/delete buttons that a viewer does not, wireframe both variants and label them clearly. Note which elements are conditionally visible and what controls their visibility.
-- **Offline or slow connection state**: Wireframe a skeleton/placeholder version of the screen that appears while data loads. Include an explicit error state for failed network requests with a retry action.
-- **Accessibility requirements affect layout**: If the wireframe includes color-only status indicators (red/yellow/green dots), add a text label or icon alternative. Note minimum tap target sizes (44x44px) for all interactive elements in the mobile wireframe.
+- **页面需要无限滚动或分页**：画出初始加载状态、加载更多指示器（骨架行或加载轮）以及列表结束状态（"没有更多结果"）。注明滚动触发点（如"距底部 200px 时加载更多"）。
+- **内容为用户生成且长度不可预测**：展示最简内容版本（单词标题、无描述）和最大内容版本（100 字符标题、完整段落描述）。定义截断规则：最大行数、省略号行为、"展开更多"切换开关。
+- **页面需支持多种用户角色**：如果管理员能看到编辑/删除按钮而普通查看者不能，画出两种变体并清晰标注。注明哪些元素是条件可见的以及什么控制其可见性。
+- **离线或慢速连接状态**：画出数据加载时显示的骨架/占位版本页面。包含网络请求失败时的显式错误状态及重试操作。
+- **无障碍要求影响布局**：如果线框图包含纯颜色的状态指示器（红/黄/绿圆点），添加文字标签或图标替代方案。在移动端线框图中注明所有可交互元素的最小触控目标尺寸（44x44px）。

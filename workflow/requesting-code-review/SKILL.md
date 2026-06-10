@@ -3,101 +3,67 @@ name: requesting-code-review
 description: Use when completing tasks, implementing major features, or before merging to verify work meets requirements
 ---
 
-# Requesting Code Review
+# 请求 Code Review
 
-Dispatch a code reviewer subagent to catch issues before they cascade. The reviewer gets precisely crafted context for evaluation — never your session's history. This keeps the reviewer focused on the work product, not your thought process, and preserves your own context for continued work.
+派发代码审查 subagent 在问题级联之前捕获它们。审查者获得精确构建的评估上下文——永远不是你会话的历史。这使审查者聚焦于工作产物而非你的思考过程，并为你保留上下文以继续工作。
 
-**Core principle:** Review early, review often.
+**核心原则：** 尽早审查，经常审查。
 
-## When to Request Review
+## 何时请求审查
 
-**Mandatory:**
-- After each task in subagent-driven development
-- After completing major feature
-- Before merge to main
+**强制：**
+- Subagent 驱动开发中每个任务之后
+- 完成主要功能后
+- 合并到 main 之前
 
-**Optional but valuable:**
-- When stuck (fresh perspective)
-- Before refactoring (baseline check)
-- After fixing complex bug
+**可选但有价值：**
+- 卡住时（新鲜视角）
+- 重构前（基线检查）
+- 修复复杂 bug 后
 
-## How to Request
+## 如何请求
 
-**1. Get git SHAs:**
+**1. 获取 git SHA：**
 ```bash
-BASE_SHA=$(git rev-parse HEAD~1)  # or origin/main
+BASE_SHA=$(git rev-parse HEAD~1)  # 或 origin/main
 HEAD_SHA=$(git rev-parse HEAD)
 ```
 
-**2. Dispatch code reviewer subagent:**
+**2. 派发代码审查 subagent：**
 
-Use Task tool with `general-purpose` type, fill template at `code-reviewer.md`
+使用 Task 工具，填充 `code-reviewer.md` 模板。
 
-**Placeholders:**
-- `{DESCRIPTION}` - Brief summary of what you built
-- `{PLAN_OR_REQUIREMENTS}` - What it should do
-- `{BASE_SHA}` - Starting commit
-- `{HEAD_SHA}` - Ending commit
+**占位符：**
+- `{DESCRIPTION}` - 你构建了什么的简要总结
+- `{PLAN_OR_REQUIREMENTS}` - 它应该做什么
+- `{BASE_SHA}` - 起始提交
+- `{HEAD_SHA}` - 结束提交
 
-**3. Act on feedback:**
-- Fix Critical issues immediately
-- Fix Important issues before proceeding
-- Note Minor issues for later
-- Push back if reviewer is wrong (with reasoning)
+**3. 根据反馈行动：**
+- Critical 问题立即修复
+- Important 问题在继续前修复
+- Minor 问题记下后续修复
+- 如果审查者错了，反驳（附推理）
 
-## Example
+## 与工作流集成
 
-```
-[Just completed Task 2: Add verification function]
+**Subagent 驱动开发：** 每个任务后审查，捕获问题后再累积。
 
-You: Let me request code review before proceeding.
+**执行计划：** 每个任务后或自然检查点审查。
 
-BASE_SHA=$(git log --oneline | grep "Task 1" | head -1 | awk '{print $1}')
-HEAD_SHA=$(git rev-parse HEAD)
+**临时开发：** 合并前审查，卡住时审查。
 
-[Dispatch code reviewer subagent]
-  DESCRIPTION: Added verifyIndex() and repairIndex() with 4 issue types
-  PLAN_OR_REQUIREMENTS: Task 2 from docs/superpowers/plans/deployment-plan.md
-  BASE_SHA: a7981ec
-  HEAD_SHA: 3df7661
+## 红旗
 
-[Subagent returns]:
-  Strengths: Clean architecture, real tests
-  Issues:
-    Important: Missing progress indicators
-    Minor: Magic number (100) for reporting interval
-  Assessment: Ready to proceed
+**永远不要：**
+- 因为"这很简单"跳过审查
+- 忽略 Critical 问题
+- 在 Important 问题未修复时继续
+- 与有效的技术反馈争论
 
-You: [Fix progress indicators]
-[Continue to Task 3]
-```
+**如果审查者错了：**
+- 用技术推理反驳
+- 展示证明其工作的代码/测试
+- 请求澄清
 
-## Integration with Workflows
-
-**Subagent-Driven Development:**
-- Review after EACH task
-- Catch issues before they compound
-- Fix before moving to next task
-
-**Executing Plans:**
-- Review after each task or at natural checkpoints
-- Get feedback, apply, continue
-
-**Ad-Hoc Development:**
-- Review before merge
-- Review when stuck
-
-## Red Flags
-
-**Never:**
-- Skip review because "it's simple"
-- Ignore Critical issues
-- Proceed with unfixed Important issues
-- Argue with valid technical feedback
-
-**If reviewer wrong:**
-- Push back with technical reasoning
-- Show code/tests that prove it works
-- Request clarification
-
-See template at: requesting-code-review/code-reviewer.md
+参见模板：requesting-code-review/code-reviewer.md

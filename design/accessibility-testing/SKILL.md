@@ -7,33 +7,33 @@ metadata:
   version: 1.0.0
 ---
 
-# Accessibility Testing
+# 无障碍访问测试
 
-This skill enables the agent to perform thorough accessibility audits of web pages and components against the Web Content Accessibility Guidelines (WCAG) 2.1 at AA and AAA conformance levels. The agent identifies violations across four principles — Perceivable, Operable, Understandable, Robust — and generates structured compliance reports with specific code fixes. It covers automated checks (color contrast, missing alt text, ARIA misuse), semi-automated checks (keyboard navigation flows, focus management), and manual check guidance (screen reader announcements, cognitive load).
+此 skill 使 Agent 能够根据 Web 内容无障碍指南（WCAG 2.1）对网页和组件进行全面的 AA 和 AAA 级别无障碍审计。Agent 会在四大原则（可感知、可操作、可理解、健壮性）框架下识别违规项，并生成结构化的合规报告及具体代码修复方案。覆盖范围包括：自动化检查（颜色对比度、缺失的 alt 文本、ARIA 误用）、半自动化检查（键盘导航流程、焦点管理）以及手动检查指导（屏幕阅读器播报、认知负荷）。
 
-## Workflow
+## 工作流程
 
-1. **Define Audit Scope and Conformance Target**: Determine which pages, components, or user flows to audit, and whether the target is WCAG 2.1 AA (most common legal requirement) or AAA (highest conformance). Identify the assistive technologies to consider: screen readers (NVDA on Windows, VoiceOver on macOS/iOS, TalkBack on Android), keyboard-only navigation, and magnification tools.
+1. **定义审计范围和合规目标**：确定需要审计的页面、组件或用户流程，以及目标是 WCAG 2.1 AA（最常见的法律要求）还是 AAA（最高合规等级）。明确需要考虑的辅助技术：屏幕阅读器（Windows 上的 NVDA、macOS/iOS 上的 VoiceOver、Android 上的 TalkBack）、纯键盘导航和放大工具。
 
-2. **Run Automated Scans**: Execute automated accessibility analysis using axe-core or Lighthouse. These tools detect approximately 30-40% of WCAG violations automatically, including missing alt attributes, insufficient color contrast ratios, missing form labels, duplicate IDs, invalid ARIA roles, and missing document language. Capture each violation with its WCAG criterion reference (e.g., 1.4.3 Contrast Minimum), severity (critical, serious, moderate, minor), the affected HTML element, and the CSS selector path.
+2. **运行自动化扫描**：使用 axe-core 或 Lighthouse 执行自动化无障碍分析。这些工具能自动检测约 30-40% 的 WCAG 违规项，包括缺失的 alt 属性、颜色对比度不足、表单标签缺失、重复 ID、无效的 ARIA 角色以及缺失的文档语言声明。记录每个违规项的 WCAG 标准引用（如 1.4.3 对比度最低要求）、严重程度（严重、重要、中等、轻微）、受影响的 HTML 元素及 CSS 选择器路径。
 
-3. **Perform Keyboard Navigation Testing**: Manually trace every interactive flow using only Tab, Shift+Tab, Enter, Space, Escape, and arrow keys. Verify that focus order matches visual order, that focus indicators are visible (minimum 2px outline with 3:1 contrast), that modal dialogs trap focus correctly, and that no keyboard traps exist. Document any flow where a keyboard user cannot complete a task that a mouse user can.
+3. **执行键盘导航测试**：仅使用 Tab、Shift+Tab、Enter、Space、Escape 和方向键手动追踪每个交互流程。验证焦点顺序是否与视觉顺序一致、焦点指示器是否可见（最低 2px 轮廓，3:1 对比度）、模态对话框是否正确捕获焦点、是否存在键盘陷阱。记录键盘用户无法完成但鼠标用户可以完成的任何流程。
 
-4. **Test with Screen Readers**: Navigate the page with at least one screen reader to verify that all content is announced correctly. Confirm that images have meaningful alt text (or `alt=""` for decorative images), that headings form a logical hierarchy (no skipped levels), that landmarks (`<nav>`, `<main>`, `<aside>`) are present, and that dynamic content updates are announced via `aria-live` regions.
+4. **使用屏幕阅读器测试**：至少使用一种屏幕阅读器浏览页面，验证所有内容是否正确播报。确认图片有有意义的 alt 文本（或装饰性图片使用 `alt=""`）、标题形成逻辑层级（无跳级）、存在地标元素（`<nav>`、`<main>`、`<aside>`）、动态内容更新通过 `aria-live` 区域播报。
 
-5. **Generate the Compliance Report**: Produce a structured report organized by WCAG principle and criterion. For each violation, include: the criterion number and name, the severity level, the affected element's HTML snippet, an explanation of why it fails, and the specific code fix. Include a summary table with pass/fail counts per principle and an overall conformance statement.
+5. **生成合规报告**：生成按 WCAG 原则和标准组织的结构化报告。每个违规项包含：标准编号和名称、严重程度、受影响元素的 HTML 片段、失败原因说明以及具体的代码修复方案。包含按原则分类的通过/失败统计汇总表及整体合规声明。
 
-6. **Provide Remediation Code**: For every violation, supply a concrete before-and-after code snippet showing the exact fix. Group fixes by component or page region so developers can address them systematically rather than one element at a time.
+6. **提供修复代码**：为每个违规项提供修复前后的具体代码对比。按组件或页面区域对修复进行分组，使开发者可以系统性地解决而非逐一修补。
 
-## Usage
+## 使用方式
 
-Provide the agent with a URL, a block of HTML, or a React/Vue component. Specify the target conformance level (AA or AAA) and any assistive technology requirements. The agent will audit the content and return a structured report with code fixes.
+向 Agent 提供 URL、HTML 代码块或 React/Vue 组件。指定目标合规等级（AA 或 AAA）及任何辅助技术要求。Agent 将审计内容并返回结构化报告及代码修复方案。
 
-## Examples
+## 示例
 
-### Example 1: WCAG Compliance Audit Report
+### 示例 1：WCAG 合规审计报告
 
-**User Request**: "Audit this login form for WCAG 2.1 AA compliance."
+**用户需求**："审计此登录表单的 WCAG 2.1 AA 合规性。"
 
 ```html
 <div class="login">
@@ -45,44 +45,44 @@ Provide the agent with a URL, a block of HTML, or a React/Vue component. Specify
 </div>
 ```
 
-**Agent Response — Accessibility Audit Report**:
+**Agent 回复 — 无障碍审计报告**：
 
-| # | Criterion | Severity | Element | Issue |
-|---|-----------|----------|---------|-------|
-| 1 | 1.1.1 Non-text Content | Critical | `<img src="logo.png">` | Image has no `alt` attribute. Screen readers cannot describe it. |
-| 2 | 1.3.1 Info and Relationships | Critical | `<input placeholder="Username">` | Input has no associated `<label>`. Placeholder text is not a substitute for a label. |
-| 3 | 1.3.1 Info and Relationships | Critical | `<input placeholder="Password">` | Same label issue as above. |
-| 4 | 1.4.3 Contrast Minimum | Serious | `<p style="color: #aaa">` | Text color `#aaa` on white background has a contrast ratio of 2.32:1. AA requires 4.5:1 for text this size. |
-| 5 | 2.1.1 Keyboard | Critical | `<div class="btn" onclick>` | A `<div>` is not focusable via keyboard. Users cannot Tab to or activate this button. |
-| 6 | 4.1.2 Name, Role, Value | Critical | `<div class="btn" onclick>` | Element has no semantic role. Screen readers announce it as generic text, not as a button. |
+| # | 标准 | 严重程度 | 元素 | 问题 |
+|---|------|----------|------|------|
+| 1 | 1.1.1 非文本内容 | 严重 | `<img src="logo.png">` | 图片缺少 `alt` 属性，屏幕阅读器无法描述。 |
+| 2 | 1.3.1 信息与关系 | 严重 | `<input placeholder="Username">` | 输入框未关联 `<label>`。placeholder 文本不能替代标签。 |
+| 3 | 1.3.1 信息与关系 | 严重 | `<input placeholder="Password">` | 同上，存在标签缺失问题。 |
+| 4 | 1.4.3 对比度最低要求 | 重要 | `<p style="color: #aaa">` | 文字颜色 `#aaa` 在白色背景上对比度仅 2.32:1。AA 标准要求此字号文本对比度不低于 4.5:1。 |
+| 5 | 2.1.1 键盘 | 严重 | `<div class="btn" onclick>` | `<div>` 无法通过键盘聚焦，用户无法 Tab 到达或激活此按钮。 |
+| 6 | 4.1.2 名称、角色、值 | 严重 | `<div class="btn" onclick>` | 元素缺少语义化角色。屏幕阅读器将其播报为普通文本而非按钮。 |
 
-**Remediation — Fixed Code**:
+**修复方案 — 修复后代码**：
 
 ```html
 <form class="login" onsubmit="login(event)">
-  <img src="logo.png" alt="Acme Corp logo">
+  <img src="logo.png" alt="Acme Corp 标志">
 
-  <label for="username">Username</label>
+  <label for="username">用户名</label>
   <input id="username" type="text" autocomplete="username" required>
 
-  <label for="password">Password</label>
+  <label for="password">密码</label>
   <input id="password" type="password" autocomplete="current-password" required>
 
-  <button type="submit" class="btn">Sign In</button>
+  <button type="submit" class="btn">登录</button>
 
   <a href="/forgot-password" style="color: #595959; font-size: 14px;">
-    Forgot your password?
+    忘记密码？
   </a>
 </form>
 ```
 
-Changes made: added `alt` to the image, replaced placeholder-only inputs with explicit `<label>` elements, replaced the `<div>` with a semantic `<button>`, changed the link color from `#aaa` (2.32:1) to `#595959` (7.0:1), wrapped the form in a `<form>` element for proper submit handling, and added `autocomplete` attributes.
+修改说明：为图片添加 `alt`、将仅使用 placeholder 的输入框替换为显式 `<label>` 元素、将 `<div>` 替换为语义化 `<button>`、将链接颜色从 `#aaa`（2.32:1）改为 `#595959`（7.0:1）、将表单包裹在 `<form>` 中以正确处理提交、添加 `autocomplete` 属性。
 
-### Example 2: Fixing a React Component
+### 示例 2：修复 React 组件
 
-**User Request**: "Fix accessibility issues in this React notification component."
+**用户需求**："修复此 React 通知组件的无障碍问题。"
 
-**Before (inaccessible)**:
+**修复前（有可访问性问题）**：
 ```jsx
 function Notification({ message, onClose }) {
   return (
@@ -94,7 +94,7 @@ function Notification({ message, onClose }) {
 }
 ```
 
-**After (accessible)**:
+**修复后（可访问）**：
 ```jsx
 function Notification({ message, onClose }) {
   return (
@@ -103,7 +103,7 @@ function Notification({ message, onClose }) {
       <button
         type="button"
         onClick={onClose}
-        aria-label="Dismiss notification"
+        aria-label="关闭通知"
         className="close-btn"
       >
         ✕
@@ -113,21 +113,21 @@ function Notification({ message, onClose }) {
 }
 ```
 
-**Fixes applied**: (1) Added `role="alert"` and `aria-live="assertive"` so screen readers announce the notification immediately when it appears. (2) Replaced the `<span onClick>` with a `<button>` so it is keyboard-focusable and announced as an interactive control. (3) Added `aria-label="Dismiss notification"` because the "✕" character alone does not convey the button's purpose to screen reader users. (4) Changed the inner `<span>` to a `<p>` for proper text semantics.
+**修复说明**：(1) 添加 `role="alert"` 和 `aria-live="assertive"`，使屏幕阅读器在通知出现时立即播报。(2) 将 `<span onClick>` 替换为 `<button>`，使其可键盘聚焦并被播报为交互控件。(3) 添加 `aria-label="关闭通知"`，因为单独的 "✕" 字符无法告知屏幕阅读器用户按钮的用途。(4) 将内部 `<span>` 改为 `<p>` 以获得正确的文本语义。
 
-## Best Practices
+## 最佳实践
 
-- **Run automated tools first, but never rely on them alone**: axe-core catches roughly 30-40% of WCAG issues. The remaining 60-70% require manual keyboard testing, screen reader verification, and cognitive review.
-- **Test with real screen readers, not just ARIA validators**: An element may have correct ARIA markup but still produce confusing announcements. VoiceOver and NVDA sometimes interpret the same markup differently.
-- **Fix critical and serious issues before moderate ones**: Prioritize violations that completely block access (missing keyboard operability, no alt text on functional images) over cosmetic issues (minor contrast shortfalls on decorative elements).
-- **Use semantic HTML before reaching for ARIA**: A `<button>` needs no `role="button"`. A `<nav>` needs no `role="navigation"`. ARIA is a repair tool for situations where semantic HTML is not sufficient, not a replacement for it.
-- **Include accessibility checks in CI pipelines**: Run axe-core or pa11y in automated tests so new violations are caught before they reach production. Fail the build on critical violations.
-- **Document accessibility decisions**: When a component intentionally deviates from a guideline (e.g., a custom combobox pattern), document the rationale and the alternative approach used to maintain equivalent access.
+- **先运行自动化工具，但不要仅依赖它们**：axe-core 大约能捕获 30-40% 的 WCAG 问题。剩余 60-70% 需要手动键盘测试、屏幕阅读器验证和认知审查。
+- **用真实的屏幕阅读器测试，而非仅用 ARIA 校验器**：某个元素可能 ARIA 标记正确但产生的播报仍然令人困惑。VoiceOver 和 NVDA 可能对相同标记做出不同解读。
+- **先修复严重和重要问题，再处理中等和轻微问题**：优先处理完全阻碍访问的违规项（缺少键盘可操作性、功能性图片无 alt 文本），而非美观问题（装饰性元素的轻微对比度不足）。
+- **优先使用语义化 HTML，而非动辄使用 ARIA**：`<button>` 不需要 `role="button"`。`<nav>` 不需要 `role="navigation"`。ARIA 是语义化 HTML 不足时的修复工具，而非其替代品。
+- **将无障碍检查纳入 CI 流水线**：在自动化测试中运行 axe-core 或 pa11y，使新违规项在上线前被捕获。对严重违规项构建失败。
+- **记录无障碍决策**：当组件有意偏离某条指南时（如自定义组合框模式），记录原因及为保持等效访问所采用的替代方法。
 
-## Edge Cases
+## 边界情况
 
-- **Single-page applications with client-side routing**: Page navigation does not trigger a browser page load, so screen readers are not notified of the new content. Use an `aria-live="polite"` region to announce route changes, or programmatically move focus to the new page's `<h1>`.
-- **Dynamic content loaded after initial render**: Content injected via JavaScript after page load is invisible to screen readers unless wrapped in an `aria-live` region or focus is explicitly managed. For toast notifications use `aria-live="assertive"`; for feed updates use `aria-live="polite"`.
-- **Complex data tables**: Tables with merged cells, nested headers, or sortable columns require explicit `scope`, `headers`, and `aria-sort` attributes. Test that a screen reader user can understand which header applies to each data cell.
-- **Custom interactive widgets (sliders, date pickers, comboboxes)**: These have no native HTML equivalent. Follow the WAI-ARIA Authoring Practices 1.2 patterns exactly, implementing the full keyboard interaction model specified for each widget type.
-- **Third-party embedded content (iframes, widgets)**: You cannot fix accessibility inside a third-party iframe. Document the issue, add a descriptive `title` attribute to the `<iframe>`, and provide an accessible alternative when the embedded content is critical to the user flow.
+- **客户端路由的单页应用**：页面导航不会触发浏览器页面加载，因此屏幕阅读器不会收到新内容的通知。使用 `aria-live="polite"` 区域播报路由变化，或以编程方式将焦点移至新页面的 `<h1>`。
+- **初始渲染后加载的动态内容**：页面加载后通过 JavaScript 注入的内容对屏幕阅读器不可见，除非包裹在 `aria-live` 区域中或显式管理焦点。Toast 通知使用 `aria-live="assertive"`；信息流更新使用 `aria-live="polite"`。
+- **复杂数据表格**：合并单元格、嵌套表头或可排序列的表格需要显式的 `scope`、`headers` 和 `aria-sort` 属性。测试屏幕阅读器用户是否能理解每个数据单元格对应的表头。
+- **自定义交互组件（滑块、日期选择器、组合框）**：这些没有原生 HTML 等价实现。严格按照 WAI-ARIA Authoring Practices 1.2 模式实现，包括每种组件类型指定的完整键盘交互模型。
+- **第三方嵌入内容（iframe、组件）**：你无法修复第三方 iframe 内部的无障碍问题。记录该问题，为 `<iframe>` 添加描述性 `title` 属性，并在嵌入内容对用户流程至关重要时提供可访问的替代方案。

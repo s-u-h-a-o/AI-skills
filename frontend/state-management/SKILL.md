@@ -7,30 +7,30 @@ description: |
   understanding why direct mutation causes stale UI or race conditions.
 ---
 
-# State Management
+# 状态管理
 
-## The pattern
+## 模式
 
-Shared mutable state is wrapped in a deep-immutable type. Direct mutation is a compile error. All updates go through a single setter that accepts a pure function `(prev: State) => State`. Returning the same reference signals "nothing changed" and skips downstream work — no re-render, no diff.
+共享可变状态包裹在深度不可变类型中。直接修改是编译错误。所有更新通过单一 setter 进行，该 setter 接收一个纯函数 `(prev: State) => State`。返回相同引用意味着"没有变化"，并跳过下游工作——不重新渲染、不做 diff。
 
-The reducer function is atomic: the entire state object is replaced in one operation. Partial updates are expressed as spreads — the fields that didn't change carry forward from `prev`; only the changed fields are new values. This makes every transition explicit, traceable, and race-condition-safe.
+reducer 函数是原子的：整个状态对象在一次操作中被替换。部分更新通过展开运算符表达——未变化的字段从 `prev` 继承；只有变化的字段是新值。这使得每次转换都是显式的、可追踪的、竞态安全的。
 
-## Why this matters
+## 为什么重要
 
-Claude Code's AppState is a large object — UI flags, permission context, task records, session configuration — shared across tools running concurrently, React components rendering in a terminal, and background task workers. Without an immutability contract, a tool updating `tasks` could race with a UI component reading `toolPermissionContext` mid-update, producing torn reads.
+Claude Code 的 AppState 是一个大型对象——UI 标志、权限上下文、任务记录、会话配置——在并发运行的工具、在终端中渲染的 React 组件和后台任务 worker 之间共享。没有不可变性契约，正在更新 `tasks` 的工具可能与正在中间状态读取 `toolPermissionContext` 的 UI 组件发生竞态，导致撕裂读取。
 
-The `DeepImmutable<T>` wrapper makes that impossible at the type level. TypeScript rejects direct assignment to any nested field. The only way to change state is through the reducer, which replaces the entire object atomically. The reference-equality short-circuit (`return prev` when nothing changed) prevents the scheduler from scheduling re-renders for no-op updates — important when multiple tasks call `setAppState` in rapid succession.
+`DeepImmutable<T>` 包装器在类型层面杜绝了这种可能性。TypeScript 拒绝直接赋值给任何嵌套字段。改变状态的唯一方式是通过 reducer，它原子性地替换整个对象。引用相等性短路（当没有变化时 `return prev`）阻止调度器为无操作更新安排重新渲染——当多个任务快速连续调用 `setAppState` 时这一点尤为重要。
 
-## How to apply it
+## 如何应用
 
-1. Read state via `context.getAppState()` — this returns the current immutable snapshot.
-2. Write state via `context.setAppState(prev => next)`. Always return a new object; never mutate `prev`.
-3. For nested updates (e.g. a field inside `tasks`), spread at every level: `{ ...prev, tasks: { ...prev.tasks, [id]: updated } }`.
-4. When the update is conditional and the condition is false, return `prev` unchanged — this is the reference-equality no-op signal.
-5. For repeated nested updates to the same sub-object, extract a helper that handles the spread and the no-op check — if the updater returns the same reference, return `prev` unchanged to avoid triggering subscribers unnecessarily.
-6. Never access state from module-level variables. State always comes from `context.getAppState()`.
+1. 通过 `context.getAppState()` 读取状态——返回当前不可变快照。
+2. 通过 `context.setAppState(prev => next)` 写入状态。始终返回新对象；永远不要修改 `prev`。
+3. 对于嵌套更新（如 `tasks` 内部的字段），在每一层展开：`{ ...prev, tasks: { ...prev.tasks, [id]: updated } }`。
+4. 当更新是条件性的且条件为假时，原样返回 `prev`——这是引用相等性的无操作信号。
+5. 对同一子对象的重复嵌套更新，提取一个处理展开和无操作检查的辅助函数——如果更新器返回相同引用，原样返回 `prev` 以避免不必要地触发订阅者。
+6. 永远不要从模块级变量访问状态。状态始终来自 `context.getAppState()`。
 
-## In the source
+## 源码示例
 
 ```typescript
 // Source: src/state/AppStateStore.ts
@@ -38,10 +38,10 @@ export type AppState = DeepImmutable<{
   verbose: boolean
   tasks: Record<string, TaskState>
   toolPermissionContext: ToolPermissionContext
-  // ... ~100 more fields
+  // ... 还有约 100 个字段
 }>
-// DeepImmutable makes every field and nested field readonly.
-// Direct mutation — state.verbose = true — is a TypeScript error.
+// DeepImmutable 使每个字段和嵌套字段变为只读。
+// 直接修改——state.verbose = true——是 TypeScript 错误。
 
 // Source: src/utils/task/framework.ts
 type SetAppState = (updater: (prev: AppState) => AppState) => void
@@ -53,10 +53,10 @@ export function updateTaskState<T extends TaskState>(
 ): void {
   setAppState(prev => {
     const task = prev.tasks?.[taskId] as T | undefined
-    if (!task) return prev                 // no-op: task not found
+    if (!task) return prev                 // 无操作：任务未找到
 
     const updated = updater(task)
-    if (updated === task) return prev      // no-op: updater returned same reference
+    if (updated === task) return prev      // 无操作：更新器返回相同引用
 
     return {
       ...prev,
@@ -69,7 +69,7 @@ export function updateTaskState<T extends TaskState>(
 setAppState(prev => {
   const prevTask = prev.tasks[taskId]
   if (!prevTask || prevTask.notified) {
-    return prev   // Return same reference — no re-render triggered
+    return prev   // 返回相同引用——不触发重新渲染
   }
   return {
     ...prev,
@@ -81,27 +81,27 @@ setAppState(prev => {
 })
 ```
 
-The `if (updated === task) return prev` check in `updateTaskState` is subtle but important. Without it, every call to `setAppState` would trigger subscribers even when nothing changed — in a system where dozens of tasks poll state every second, this would saturate the React render scheduler.
+`updateTaskState` 中的 `if (updated === task) return prev` 检查设计精巧但很重要。没有它，每次调用 `setAppState` 都会触发订阅者，即使什么都没改变——在一个每秒有几十个任务轮询状态的系统中，这会让 React 渲染调度器不堪重负。
 
-## Apply it to your code
+## 应用到你的代码
 
-**Before** — mutating state directly and storing it in a module-level variable:
+**修复前** — 直接修改状态并存储在模块级变量中：
 ```typescript
-// Wrong: module-level state — shared across calls, causes stale reads
+// 错误：模块级状态——跨调用共享，导致陈旧读取
 let taskStatuses: Record<string, string> = {}
 
 async call(args, context) {
-  taskStatuses[args.taskId] = 'running'       // mutation, no broadcast
+  taskStatuses[args.taskId] = 'running'       // 直接修改，无广播
   await doWork(args)
-  taskStatuses[args.taskId] = 'completed'     // UI never sees this
+  taskStatuses[args.taskId] = 'completed'     // UI 永远看不到这个
   return { data: 'done' }
 }
 ```
 
-**After** — atomic reducer updates through context:
+**修复后** — 通过 context 进行原子 reducer 更新：
 ```typescript
 async call(args, context) {
-  // WHY: setAppState broadcasts to all subscribers atomically
+  // WHY: setAppState 原子性地广播给所有订阅者
   context.setAppState(prev => ({
     ...prev,
     tasks: {
@@ -112,7 +112,7 @@ async call(args, context) {
 
   await doWork(args)
 
-  // WHY: return prev unchanged when condition not met — skips re-render
+  // WHY: 条件不满足时原样返回 prev——跳过重新渲染
   context.setAppState(prev => {
     const task = prev.tasks[args.taskId]
     if (!task || task.status !== 'running') return prev
@@ -129,22 +129,22 @@ async call(args, context) {
 }
 ```
 
-## Signals that you need this pattern
+## 需要此模式的信号
 
-- A tool stores session state in a module-level variable or closure — it will be stale across calls
-- A component reads state that was updated by a tool but still shows the old value
-- Two concurrent tools updating the same field produce inconsistent results
-- State updates inside `call()` aren't reflected in the UI until the next full render cycle
+- 工具将会话状态存储在模块级变量或闭包中——跨调用会产生陈旧数据
+- 组件读取了由工具更新但显示仍为旧值的状态
+- 两个并发工具更新同一字段产生不一致结果
+- `call()` 内部的状态更新在下一次完整渲染周期之前未反映到 UI 中
 
-## Signals that you're over-applying it
+## 过度应用的信号
 
-- Pure computation inside a tool (local variables, intermediate results) doesn't need `setAppState` — only values that need to survive beyond the current call or be visible to other tools or the UI
-- Don't call `setAppState` in a tight loop for progress updates — batch them or use `onProgress` callbacks instead
-- Don't use AppState for data that belongs in a task's disk-backed output file — large outputs go to disk, not memory
+- 工具内部纯计算（局部变量、中间结果）不需要 `setAppState`——只有需要在当前调用之外继续存在或需要对其他工具或 UI 可见的值才需要
+- 不要在紧凑循环中为进度更新调用 `setAppState`——批量处理或改用 `onProgress` 回调
+- 不要对属于任务磁盘支持输出文件的数据使用 AppState——大输出放到磁盘，不放内存
 
-## Works with
+## 配合使用
 
-- `domain-model` — where AppState fits in the overall system model
-- `task-system` — task lifecycle transitions are the most common AppState update pattern
-- `async-concurrency` — concurrent tools reading and writing state safely
-- `tool-definition` — how `context.getAppState()` and `context.setAppState()` are accessed from `call()`
+- `domain-model` — AppState 在整个系统模型中的位置
+- `task-system` — 任务生命周期转换是最常见的 AppState 更新模式
+- `async-concurrency` — 并发工具安全地读写状态
+- `tool-definition` — 如何从 `call()` 访问 `context.getAppState()` 和 `context.setAppState()`
