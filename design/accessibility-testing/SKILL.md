@@ -1,5 +1,5 @@
 ---
-name: Accessibility Testing
+name: accessibility-testing
 description: Audit web interfaces against WCAG 2.1 AA/AAA standards, identify violations, and produce actionable remediation reports with code fixes.
 license: MIT
 metadata:

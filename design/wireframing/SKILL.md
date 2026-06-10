@@ -1,5 +1,5 @@
 ---
-name: Wireframing
+name: wireframing
 description: Create text-based wireframes at low, mid, and high fidelity with component inventories, interaction annotations, and responsive breakpoint specifications.
 license: MIT
 metadata:
